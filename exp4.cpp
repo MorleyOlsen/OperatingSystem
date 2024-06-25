@@ -3,58 +3,58 @@
 #include <algorithm>
 using namespace std;
 
-int mem;	// ´æ´¢Æ÷¿Õ¼ä´óĞ¡ 
+int mem;	// å­˜å‚¨å™¨ç©ºé—´å¤§å° 
 
 struct MemoryBlock {
     int startAddress;
     int length;
-    int pid; // ¶ÔÓÚ¿ÕÏĞÇø£¬pid Îª 0
+    int pid; // å¯¹äºç©ºé—²åŒºï¼Œpid ä¸º 0
     
-    // ¶¨Òå±È½Ï²Ù×÷·û
+    // å®šä¹‰æ¯”è¾ƒæ“ä½œç¬¦
     bool operator==(const MemoryBlock& other) const {
         return startAddress == other.startAddress && length == other.length && pid == other.pid;
     }
 };
 
-vector<MemoryBlock> allocated;  // ÒÑ·ÖÅäÇøÁĞ±í
-vector<MemoryBlock> available;  // ¿ÕÏĞÇøÁĞ±í
+vector<MemoryBlock> allocated;  // å·²åˆ†é…åŒºåˆ—è¡¨
+vector<MemoryBlock> available;  // ç©ºé—²åŒºåˆ—è¡¨
 
-// ÅÅĞòº¯Êı£¬°´ÆğÊ¼µØÖ·ÅÅĞò
+// æ’åºå‡½æ•°ï¼ŒæŒ‰èµ·å§‹åœ°å€æ’åº
 bool compareByStartAddress(const MemoryBlock& a, const MemoryBlock& b) {
     return a.startAddress < b.startAddress;
 }
 
-// ÅÅĞòº¯Êı£¬°´³¤¶ÈÅÅĞò
+// æ’åºå‡½æ•°ï¼ŒæŒ‰é•¿åº¦æ’åº
 bool compareByLength(const MemoryBlock& a, const MemoryBlock& b) {
     return a.length < b.length;
 }
 
-// ÊÖ¶¯Ìí¼ÓÒÑ·ÖÅäÇøÓò
+// æ‰‹åŠ¨æ·»åŠ å·²åˆ†é…åŒºåŸŸ
 void AddAllocatedBlock(int startAddress, int length, int pid) {
     if (length <= 0 || startAddress < 0 || startAddress + length > mem) {
-        cout << "ÊÖ¶¯Ìí¼ÓÊ§°Ü: µØÖ·»ò³¤¶È²»ºÏÀí¡£" << endl;
+        cout << "æ‰‹åŠ¨æ·»åŠ å¤±è´¥: åœ°å€æˆ–é•¿åº¦ä¸åˆç†ã€‚" << endl;
         return;
     }
 
-    // ¼ì²éÊÇ·ñÓëÏÖÓĞµÄÒÑ·ÖÅäÇøÓò³åÍ»
+    // æ£€æŸ¥æ˜¯å¦ä¸ç°æœ‰çš„å·²åˆ†é…åŒºåŸŸå†²çª
     for (const auto& block : allocated) {
         if (!(startAddress >= block.startAddress + block.length || startAddress + length <= block.startAddress)) {
-        	// ÓëÒÑ·ÖÅäµÄÇøÓò£¬ÓĞ½»¼¯ 
-            cout << "ÊÖ¶¯Ìí¼ÓÊ§°Ü: ÓëÏÖÓĞÒÑ·ÖÅäÇøÓò³åÍ»¡£" << endl;
+        	// ä¸å·²åˆ†é…çš„åŒºåŸŸï¼Œæœ‰äº¤é›† 
+            cout << "æ‰‹åŠ¨æ·»åŠ å¤±è´¥: ä¸ç°æœ‰å·²åˆ†é…åŒºåŸŸå†²çªã€‚" << endl;
             return;
         }
     }
 
-    // ²éÕÒ²¢¸üĞÂºÏÊÊµÄ¿ÕÏĞÇøÓò
+    // æŸ¥æ‰¾å¹¶æ›´æ–°åˆé€‚çš„ç©ºé—²åŒºåŸŸ
     bool isAllocated = false;
     for (auto& block : available) {
         if (startAddress >= block.startAddress && startAddress + length <= block.startAddress + block.length) {
-            // ÕÒµ½ºÏÊÊµÄ¿ÕÏĞÇøÓò
+            // æ‰¾åˆ°åˆé€‚çš„ç©ºé—²åŒºåŸŸ
             isAllocated = true;
             int newEnd = block.startAddress + block.length;
             int originalStart = block.startAddress;
 
-            // ¸üĞÂ¿ÕÏĞÇøÓò
+            // æ›´æ–°ç©ºé—²åŒºåŸŸ
             if (startAddress == originalStart) {
                 block.startAddress += length;
                 block.length -= length;
@@ -63,7 +63,7 @@ void AddAllocatedBlock(int startAddress, int length, int pid) {
                 block.length -= length;
             } 
 			else {
-                // ·Ö¸î¿ÕÏĞÇøÓò
+                // åˆ†å‰²ç©ºé—²åŒºåŸŸ
                 block.length = startAddress - originalStart;
                 available.push_back({startAddress + length, newEnd - (startAddress + length), 0});
             }
@@ -78,14 +78,14 @@ void AddAllocatedBlock(int startAddress, int length, int pid) {
 
     if (isAllocated) {
         allocated.push_back({startAddress, length, pid});
-        cout << "ÊÖ¶¯Ìí¼Ó³É¹¦" << endl;
+        cout << "æ‰‹åŠ¨æ·»åŠ æˆåŠŸ" << endl;
     }
 	else {
-        cout << "ÊÖ¶¯Ìí¼ÓÊ§°Ü: Ã»ÓĞÕÒµ½ºÏÊÊµÄ¿ÕÏĞÇøÓò¡£" << endl;
+        cout << "æ‰‹åŠ¨æ·»åŠ å¤±è´¥: æ²¡æœ‰æ‰¾åˆ°åˆé€‚çš„ç©ºé—²åŒºåŸŸã€‚" << endl;
     }
 }
 
-// ÉêÇë½ø³Ì·ÖÅä¿Õ¼ä
+// ç”³è¯·è¿›ç¨‹åˆ†é…ç©ºé—´
 bool Alloc(int pid, int size) {
     sort(allocated.begin(), allocated.end(), compareByStartAddress);
     sort(available.begin(), available.end(), compareByLength);
@@ -117,7 +117,7 @@ bool Alloc(int pid, int size) {
     return true;
 }
 
-// »ØÊÕ½ø³Ì
+// å›æ”¶è¿›ç¨‹
 bool Free(int pid) {
     sort(available.begin(), available.end(), compareByStartAddress);
     sort(available.begin(), available.end(), compareByLength);
@@ -137,7 +137,7 @@ bool Free(int pid) {
     MemoryBlock freedBlock = allocated[index];
     allocated.erase(allocated.begin() + index);
 
-    // ºÏ²¢ÁÚ½Ó¿ÕÏĞÇø
+    // åˆå¹¶é‚»æ¥ç©ºé—²åŒº
     for (int i = 0; i < available.size(); i++) {
         if (available[i].startAddress == freedBlock.startAddress + freedBlock.length) {
             freedBlock.length += available[i].length;
@@ -157,93 +157,93 @@ bool Free(int pid) {
     return true;
 }
 
-// ÏÔÊ¾ĞÅÏ¢
+// æ˜¾ç¤ºä¿¡æ¯
 void Information() {
     sort(allocated.begin(), allocated.end(), compareByStartAddress);
     sort(available.begin(), available.end(), compareByLength);
 	cout<<endl; 
-    cout << "---------------¿ÕÏĞÇøÇé¿ö---------------" << endl;
-    cout << "ÆğÊ¼µØÖ·\t³¤¶È\tÖÕÖ¹µØÖ·\tÊÇ·ñ·ÖÅä" << endl;
+    cout << "---------------ç©ºé—²åŒºæƒ…å†µ---------------" << endl;
+    cout << "èµ·å§‹åœ°å€\té•¿åº¦\tç»ˆæ­¢åœ°å€\tæ˜¯å¦åˆ†é…" << endl;
     for (auto& item : available) {
         cout << item.startAddress << "\t\t" << item.length << "\t\t" 
              << item.startAddress + item.length - 1 << "\t\t" << item.pid << endl;
     }
 
-    cout << "---------------ÒÑ·ÖÅäÇé¿ö---------------" << endl;
-    cout << "ÆğÊ¼µØÖ·\t³¤¶È\tÖÕÖ¹µØÖ·\t½ø³ÌºÅ" << endl;
+    cout << "---------------å·²åˆ†é…æƒ…å†µ---------------" << endl;
+    cout << "èµ·å§‹åœ°å€\té•¿åº¦\tç»ˆæ­¢åœ°å€\tè¿›ç¨‹å·" << endl;
     for (auto& item : allocated) {
         cout << item.startAddress << "\t\t" << item.length << "\t\t" 
              << item.startAddress + item.length - 1 << "\t\t" << item.pid << endl;
     }
 }
 
-// ÔËĞĞº¯Êı
+// è¿è¡Œå‡½æ•°
 void Run() {
     string key;
     int pid, size, startAddress;
     while (true) {
         Information();
-        cout << "ÇëÊäÈë²Ù×÷Âë[ÊÖ¶¯Ìí¼Ó½ø³Ì-0/ÉêÇë½ø³Ì-1/»ØÊÕ½ø³Ì-2/ÍË³ö³ÌĞò-3]£º";
+        cout << "è¯·è¾“å…¥æ“ä½œç [æ‰‹åŠ¨æ·»åŠ è¿›ç¨‹-0/ç”³è¯·è¿›ç¨‹-1/å›æ”¶è¿›ç¨‹-2/é€€å‡ºç¨‹åº-3]ï¼š";
         cin >> key;
 
         if (key == "0") {
-            cout << "ÇëÊäÈë½ø³ÌºÅ£º";
+            cout << "è¯·è¾“å…¥è¿›ç¨‹å·ï¼š";
             cin >> pid;
-            cout << "ÇëÊäÈëÆğÊ¼µØÖ·£º";
+            cout << "è¯·è¾“å…¥èµ·å§‹åœ°å€ï¼š";
             cin >> startAddress;
-            cout << "ÇëÊäÈë½ø³Ì³¤¶È£º";
+            cout << "è¯·è¾“å…¥è¿›ç¨‹é•¿åº¦ï¼š";
             cin >> size;
             AddAllocatedBlock(startAddress, size, pid);
         }
 		else if (key == "1") {
-            cout << "ÇëÊäÈë½ø³ÌºÅ£º";
+            cout << "è¯·è¾“å…¥è¿›ç¨‹å·ï¼š";
             cin >> pid;
-            cout << "ÇëÊäÈëĞèÒªÉêÇëµÄÄÚ´æ¿Õ¼ä´óĞ¡£º";
+            cout << "è¯·è¾“å…¥éœ€è¦ç”³è¯·çš„å†…å­˜ç©ºé—´å¤§å°ï¼š";
             cin >> size;
             if (Alloc(pid, size)) {
-                cout << "ÉêÇë³É¹¦£¡" << endl;
+                cout << "ç”³è¯·æˆåŠŸï¼" << endl;
             }
 			else {
-                cout << "ÉêÇëÊ§°Ü£¡" << endl;
+                cout << "ç”³è¯·å¤±è´¥ï¼" << endl;
             }
         }
 		else if (key == "2") {
-            cout << "ÇëÊäÈëĞèÒª»ØÊÕµÄ½ø³ÌºÅ£º";
+            cout << "è¯·è¾“å…¥éœ€è¦å›æ”¶çš„è¿›ç¨‹å·ï¼š";
             cin >> pid;
             if (Free(pid)) {
-                cout << "»ØÊÕ³É¹¦£¡" << endl;
+                cout << "å›æ”¶æˆåŠŸï¼" << endl;
             } else {
-                cout << "»ØÊÕÊ§°Ü£¡" << endl;
+                cout << "å›æ”¶å¤±è´¥ï¼" << endl;
             }
         }
 		else if (key == "3") {
             break;
         }
         else {
-        	cout<<"ÊäÈë±àºÅ´íÎó£¬ÇëÖØĞÂÊäÈë£¡"<<endl;
+        	cout<<"è¾“å…¥ç¼–å·é”™è¯¯ï¼Œè¯·é‡æ–°è¾“å…¥ï¼"<<endl;
 		}
     }
     cout << endl;
 }
 
 int main() {
-    cout << "ÊäÈëÄÚ´æ´óĞ¡£º";
+    cout << "è¾“å…¥å†…å­˜å¤§å°ï¼š";
     cin >> mem;
     available.push_back({0, mem, 0});
     Run();
     return 0;
     /*
-    Ê×´ÎÊÊÓ¦Ëã·¨£ºµØÖ·µİÔö
-	£¨µÍµØÖ·Ğ¡ËéÆ¬¶à£¬¸ßµØÖ·ÓĞ´ó¿ÕÏĞÇøÓò£©
-	×î¼ÑÊÊÓ¦Ëã·¨£ºÈİÁ¿µİÔö
-	£¨·ÖÅäµÄ¿ÕÏĞ·ÖÇø´óĞ¡ÓëÉêÇëµÄ´óĞ¡×îÎª½Ó½ü£¬Ğ¡ËéÆ¬¶à£¬ÓĞ´ó¿ÕÏĞÇøÓò£© 
-	Ñ­»·Ê×´ÎÊÊÓ¦Ëã·¨£ºµØÖ·µİÔö³ÉÎªÑ­»·Á´±í
-	£¨±ÈÊ×´Î¸ü¿ì£¬´ó¿ÕÏĞÇøÓò²»Ò×±£´æ£© 
+    é¦–æ¬¡é€‚åº”ç®—æ³•ï¼šåœ°å€é€’å¢
+	ï¼ˆä½åœ°å€å°ç¢ç‰‡å¤šï¼Œé«˜åœ°å€æœ‰å¤§ç©ºé—²åŒºåŸŸï¼‰
+	æœ€ä½³é€‚åº”ç®—æ³•ï¼šå®¹é‡é€’å¢
+	ï¼ˆåˆ†é…çš„ç©ºé—²åˆ†åŒºå¤§å°ä¸ç”³è¯·çš„å¤§å°æœ€ä¸ºæ¥è¿‘ï¼Œå°ç¢ç‰‡å¤šï¼Œæœ‰å¤§ç©ºé—²åŒºåŸŸï¼‰ 
+	å¾ªç¯é¦–æ¬¡é€‚åº”ç®—æ³•ï¼šåœ°å€é€’å¢æˆä¸ºå¾ªç¯é“¾è¡¨
+	ï¼ˆæ¯”é¦–æ¬¡æ›´å¿«ï¼Œå¤§ç©ºé—²åŒºåŸŸä¸æ˜“ä¿å­˜ï¼‰ 
     */
 }
 
 /*
-ÊÖ¶¯Ìí¼ÓµÄ²âÊÔÓÃÀı
+æ‰‹åŠ¨æ·»åŠ çš„æµ‹è¯•ç”¨ä¾‹
 0
 1
 0
@@ -266,7 +266,7 @@ int main() {
 */
 
 /*
-ÉêÇëĞÂ½ø³ÌµÄ²âÊÔÓÃÀı
+ç”³è¯·æ–°è¿›ç¨‹çš„æµ‹è¯•ç”¨ä¾‹
 1
 5
 5
@@ -277,18 +277,18 @@ int main() {
 */
 
 /*
-// ÊÖ¶¯Ìí¼ÓÒÑ·ÖÅäÇøÓò
+// æ‰‹åŠ¨æ·»åŠ å·²åˆ†é…åŒºåŸŸ
 void AddAllocatedBlock(int startAddress, int length, int pid) {
 	bool flag=1;
-	sort(allocated.begin(), allocated.end(), compareByStartAddress);	// °´ÆğÊ¼µØÖ·ÅÅĞòÒÑ·ÖÅä 
-	sort(available.begin(), available.end(), compareByLength);			// °´¿Õ¼ä´óĞ¡ÅÅĞò¿ÕÏĞÇø
+	sort(allocated.begin(), allocated.end(), compareByStartAddress);	// æŒ‰èµ·å§‹åœ°å€æ’åºå·²åˆ†é… 
+	sort(available.begin(), available.end(), compareByLength);			// æŒ‰ç©ºé—´å¤§å°æ’åºç©ºé—²åŒº
 	
-	// ³¬³ö´æ´¢Æ÷µØÖ··¶Î§ 
+	// è¶…å‡ºå­˜å‚¨å™¨åœ°å€èŒƒå›´ 
 	if(startAddress < 0 || startAddress >= mem){
 		flag=0;
 	}
 	
-	// pid ÒÑ´æÔÚ
+	// pid å·²å­˜åœ¨
 	for(auto& t : allocated){
 		if(t.pid == pid){
 			flag=0;
@@ -296,7 +296,7 @@ void AddAllocatedBlock(int startAddress, int length, int pid) {
 		}
 	} 
 	
-	// ĞÂ½ø³ÌµÄ·¶Î§²»ÔÚavailableÀïÃæ
+	// æ–°è¿›ç¨‹çš„èŒƒå›´ä¸åœ¨availableé‡Œé¢
 	bool in=0;
 	int index=-1;
 	for (int i = 0; i < available.size(); i++) {
@@ -311,32 +311,32 @@ void AddAllocatedBlock(int startAddress, int length, int pid) {
 		flag=0;
 	}
 	
-	// Êä³öÄÚÈİ + ¸üĞÂallocatedºÍavailable 
+	// è¾“å‡ºå†…å®¹ + æ›´æ–°allocatedå’Œavailable 
     if(flag == 1){
-    	cout<<"ÊÖ¶¯Ìí¼Ó³É¹¦"<<endl;
-    	// °´ÕÕÓÃ»§µÄ startAddress ºÍ length ½øĞĞ·ÖÅä
+    	cout<<"æ‰‹åŠ¨æ·»åŠ æˆåŠŸ"<<endl;
+    	// æŒ‰ç…§ç”¨æˆ·çš„ startAddress å’Œ length è¿›è¡Œåˆ†é…
 		allocated.push_back({startAddress, length, pid});
 		 
 		if(available[index].startAddress == startAddress && available[index].length == length){
-			// Õâ¸ö¿é¸ÕºÃ
+			// è¿™ä¸ªå—åˆšå¥½
 			available.erase(available.begin() + index);		
 		}
 		else if(available[index].startAddress == startAddress && available[index].length != length){
-			// Ê×µØÖ·ÖØºÏ 
+			// é¦–åœ°å€é‡åˆ 
 			available[index].startAddress += length;
 		}
 		else if(available[index].startAddress != startAddress && available[index].length == length){
-			// Î²µØÖ·ÖØºÏ
+			// å°¾åœ°å€é‡åˆ
 			available[index].length -= length;
 		}
 		else{
-			// ¶¼²»ÖØºÏ£¬available»áÔö¼Ó1¿é
+			// éƒ½ä¸é‡åˆï¼Œavailableä¼šå¢åŠ 1å—
 			available.push_back({startAddress + length, available[index].length - (startAddress + length), 0});
 			available[index].length = startAddress - available[index].startAddress;
 		}
 	}
 	else{
-		cout<<"ÊÖ¶¯Ìí¼ÓÊ§°Ü"<<endl;
+		cout<<"æ‰‹åŠ¨æ·»åŠ å¤±è´¥"<<endl;
 	}
 }
 */
