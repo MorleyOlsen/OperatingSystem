@@ -1,9 +1,12 @@
 # OperatingSystem
 <br>
+Codes for Operating System Experiment Course in CAU.
 exp3-1 and exp3-2 are implementations about CPU scheduling & deadlock
 <br>
-4-2 is an implementation about memory management
+exp4 is an implementation about memory management
 <br>
-5 is an implementation about disk management
+exp5 is an implementation about disk management
 <br>
-6 is an implementation about file management
+exp6 is an implementation about file management
+<br>
+feel free to run these files and edit for your own purpose only if you refer to this repo!
